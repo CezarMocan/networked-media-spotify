@@ -1,3 +1,6 @@
+/*
+You don't need to worry about this function.
+*/
 module.exports = {
   /**
    * Generates a random string containing numbers and letters
