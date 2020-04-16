@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Example of Spotify API</title>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <script src="/networkedMediaSpotifyPlayer.js"></script>
+    <script>
+        // Let's get the access token we've put in page url, after the #.
+        var ACCESS_TOKEN = window.location.hash.substring(1)
+
+        // Let's create our Spotify music player. Since Spotify doesn't give us access to the mp3 files,
+        // we can't use the traditional HTML media elements we've learned about.
+        // We're using their Web Player SDK, which is documented here: 
+        // https://developer.spotify.com/documentation/web-playback-sdk/reference/
+        // I've moved the initialization code into a different file (inside public/networkedMediaSpotifyPlayer.js)
+        // to avoid confusion here.
+        // On the line below, we can pick any name we want in the first parameter.
+        // When we play music from this webpage, this name shows up in the Devices list
+        // of the Spotify app (same as when we play music from the mobile app.)
+        SpotifyPlayerInitialize("Networked Media's Web Spotify Player", ACCESS_TOKEN)
+
+        $(document).ready(function() {
+          // Check if the token exists. If it's not there, it means the login failed.          
+          if (ACCESS_TOKEN == null || ACCESS_TOKEN == undefined || ACCESS_TOKEN == '') {
+            // If the login failed, we show the loginError div.
+            document.getElementById('loginError').style['display'] = 'inherit'
+          } else {
+            // If the login succeeded, we show the loginSuccessful div, which
+            // is the main content of our app.
+            document.getElementById('loginSuccessful').style['display'] = 'inherit'
+
+            // Now that we've successfully logged in, let's ask Spotify for the 
+            // logged in user's information.
+            // The Authorization field under the 'headers' section of 
+            // the AJAX call below is how Spotify knows
+            // who the logged in user is. It uses the token we received earlier.
+            // All other calls to the Spotify API need to respect this structure.
+            // You place your query parameters (if any) in the request, like you
+            // normally do with ajax. And you need to have the extra headers field, 
+            // identical to the one below, in order to let Spotify know that the request
+            // is coming from an authenticated user.
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me',
+                headers: { 'Authorization': 'Bearer ' + ACCESS_TOKEN },
+                success: function(response) {
+                  console.log('Spotify user data: ', response)
+                  // Let's add some of this data to our HTML.
+                  document.getElementById('userName').innerHTML = response.display_name
+                  document.getElementById('userEmail').innerHTML = response.email
+                  document.getElementById('userFollowers').innerHTML = response.followers.total
+                }
+            });
+            
+            // Let's start playing some music when the user clicks the button!!
+            document.getElementById('playButton').addEventListener('click', function() {
+              // These are the Spotify track IDs. You can get them in the Spotify app
+              // by going to a song's share submenu and clicking Copy Spotify URI.
+              // These URIs are also what we get when we use the Search API in order to
+              // retrieve songs. It's how Spotify identifies its songs.              
+              // Bellow is an array of 2 songs.
+              var spotify_uris = [
+                'spotify:track:1EKQhpRQD3C8NW3e4wtjRG',
+                'spotify:track:1rHol52dw6r5LIOOB7extq'
+              ]
+
+              // This function is also defined in public/netrowkedMediaSpotifyPlayer.js
+              // You need to pass it an array of Spotify URIs, and it will 
+              // play them in order.
+              // If you only want to play one song, give this function an array
+              // with a single element.
+              SpotifyPlayerPlayTracks(spotify_uris)
+
+              // I've also created the following convenience functions for you:
+              // SpotifyPlayerPause()
+              // SpotifyPlayerResume()
+              // SpotifyPlayerSetVolume()
+              // SpotifyPlayerNextTrack()
+              // SpotifyPlayerPreviousTrack()
+            })
+            // Below is an example of the SpotifyPlayerNextTrack()
+            document.getElementById('nextButton').addEventListener('click', function() {
+              SpotifyPlayerNextTrack()
+            })
+          }
+          
+        })
+    </script>
+  </head>
+
+  <body>
+    <!-- This gets displayed if the login failed -->
+    <div id="loginError" style="display: none;">
+        You must be logged in to view this page!
+    </div>
+
+    <!-- This gets displayed if the login was successful -->
+    <div id="loginSuccessful" style="display: none;">
+        Welcome, <p id="userName"></p>
+        Email address: <p id="userEmail"></p>
+        Followers: <p id="userFollowers"></p>
+    </div>
+
+    <button id="playButton">Play song</button>
+    <button id="nextButton">Next song</button>
+
+  </body>
+</html>
+
