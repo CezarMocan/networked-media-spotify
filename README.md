@@ -1,6 +1,6 @@
 # Spotify Authentication & Music Playing Examples
 
-This is a simple express app which allows a user to log in with Spotify, it displays some basic user information, and allows the user to play a playlist of 2 pre-defined songs. 
+This is a simple express app which allows a user to log in with Spotify, displays some basic user information, and allows the user to play a playlist of 2 pre-defined songs. 
 
 First of all, follow the [the App Settings guide](https://developer.spotify.com/documentation/general/guides/app-settings/) in order to create a Spotify App and get its Client Id and Client Secret. Next thing, go to `app.js` at line 6, and read the comments in there. Place your Client ID and Client Secret in there, and copy the `redirect_uri` from the code into the dashboard.
 
